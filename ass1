@@ -1,0 +1,50 @@
+# Step 1: Import Libraries
+import pandas as pd
+import numpy as np
+from sklearn import preprocessing
+
+# Step 2: Load Dataset
+df = pd.read_csv("IRIS.csv")   # keep file in same folder
+print("First 5 rows:\n", df.head())
+
+# Step 3: Check Data Types
+print("\nData Types:\n", df.dtypes)
+
+# Step 4: Feature Scaling (Min-Max Scaling)
+x = df.iloc[:, :4]   # select first 4 columns (features)
+
+min_max_scaler = preprocessing.MinMaxScaler()
+x_scaled = min_max_scaler.fit_transform(x)
+
+# Convert scaled data into DataFrame
+df_normalized = pd.DataFrame(x_scaled, columns=x.columns)
+print("\nNormalized Data:\n", df_normalized.head())
+
+# Step 5: Check unique values in target
+print("\nUnique species:\n", df['species'].unique())
+
+# Step 6: Label Encoding
+label_encoder = preprocessing.LabelEncoder()
+df['species'] = label_encoder.fit_transform(df['species'])
+
+print("\nEncoded species:\n", df['species'].unique())
+
+# Step 7: Separate Features
+features_df = df.drop(columns=['species'])
+
+# Step 8: One-Hot Encoding using OneHotEncoder
+enc = preprocessing.OneHotEncoder()
+enc_df = pd.DataFrame(
+    enc.fit_transform(df[['species']]).toarray(),
+    columns=['Iris-Setosa', 'Iris-Versicolor', 'Iris-Virginica']
+)
+
+# Step 9: Join encoded data with features
+df_encode = features_df.join(enc_df)
+print("\nOne-Hot Encoded Data (Manual):\n", df_encode.head())
+
+# Step 10: One-Hot Encoding using get_dummies (Alternative)
+one_hot_df = pd.get_dummies(df, prefix="Species",
+                           columns=['species'], drop_first=True)
+
+print("\nOne-Hot Encoded Data (get_dummies):\n", one_hot_df.head())
